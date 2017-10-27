@@ -61,6 +61,12 @@ bool SqlDatabase::openHelper(const QString &filename, int sqliteFlags)
 
     sqliteFlags |= SQLITE_OPEN_NOMUTEX;
 
+    if ((sqliteFlags & SQLITE_OPEN_READWRITE) && !QFileInfo(filename).isWritable()) {
+        qCWarning(lcSql) << filename << "is not writable";
+        _error = "database is not writable";
+        return false;
+    }
+
     SQLITE_DO(sqlite3_open_v2(filename.toUtf8().constData(), &_db, sqliteFlags, 0));
 
     if (_errId != SQLITE_OK) {
